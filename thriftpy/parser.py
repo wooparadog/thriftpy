@@ -95,16 +95,19 @@ def parse(schema):
 
     return result
 
+def load_thrift(module_name, filename, file=None):
+    if file is None:
+        file = open(filename, 'r')
 
-def load(thrift_file):
-    module_name = thrift_file[:thrift_file.find('.')]
-    with open(thrift_file, 'r') as f:
-        result = parse(f.read())
+    result = parse(file.read())
+    file.close()
+
     struct_names = [s.name for s in itertools.chain(result["structs"],
                                                     result["exceptions"])]
 
     # load thrift schema as module
     thrift_schema = types.ModuleType(module_name)
+    thrift_schema.__file__ = filename
 
     def _ttype(t):
         if isinstance(t, str):
@@ -222,10 +225,16 @@ class ThriftImporter(object):
         sys.meta_path[:] = [x for x in sys.meta_path if self != x] + [self]
 
     def find_module(self, fullname, path=None):
+        ''' Should return (filename, pathname, description)'''
         if fullname.endswith(self.extension):
             return self
 
     def load_module(self, fullname):
+        '''
+        TODO: Add support for reload
+        TODO: Importer shold be rewritten in accordance to PEP302
+        TODO: Importer should be aware of requested import path.
+        '''
         if '.' in fullname:
             module_name, thrift_file = fullname.rsplit('.', 1)
             module = self._import_module(module_name)
