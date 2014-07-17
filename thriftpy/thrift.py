@@ -129,7 +129,7 @@ class TClient(object):
         self._oprot.trans.flush()
 
     def _recv(self, api):
-        fname, mtype, rseqid = self._iprot.read_message_begin()
+        fname, mtype, rseqid, version = self._iprot.read_message_begin()
         if mtype == TMessageType.EXCEPTION:
             x = TApplicationException()
             x.read(self._iprot)
@@ -161,7 +161,7 @@ class TProcessor(object):
         self._handler = handler
 
     def process(self, iprot, oprot):
-        api, type, seqid = iprot.read_message_begin()
+        api, type, seqid, version = iprot.read_message_begin()
         if api not in self._service.thrift_services:
             iprot.skip(TType.STRUCT)
             iprot.read_message_end()

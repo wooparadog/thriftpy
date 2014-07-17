@@ -101,7 +101,7 @@ def test_write_message_begin():
 def test_read_message_begin():
     b = BytesIO(b'\x80\x01\x00\x0b\x00\x00\x00\x04test\x00\x00\x00\x01')
     res = proto.TBinaryProtocol(b).read_message_begin()
-    assert_equal(res, ("test", TType.STRING, 1))
+    assert_equal(res, ("test", TType.STRING, 1, proto.CURRENT_VERSION))
 
 
 def test_write_struct():

@@ -8,8 +8,8 @@ from .exc import TProtocolException
 
 # VERSION_MASK = 0xffff0000
 VERSION_MASK = -65536
-# VERSION_1 = 0x80010000
-VERSION_1 = -2147418112
+# CURRENT_VERSION = 0x80010000
+CURRENT_VERSION = -2147418112
 TYPE_MASK = 0x000000ff
 
 
@@ -58,7 +58,7 @@ def unpack_double(buf):
 
 
 def write_message_begin(outbuf, name, ttype, seqid):
-    outbuf.write(pack_i32(VERSION_1 | ttype))
+    outbuf.write(pack_i32(CURRENT_VERSION | ttype))
     outbuf.write(pack_string(name.encode('utf-8')))
     outbuf.write(pack_i32(seqid))
 
@@ -156,7 +156,7 @@ def write_val(outbuf, ttype, val, spec=None):
 def read_message_begin(inbuf):
     sz = unpack_i32(inbuf.read(4))
     version = sz & VERSION_MASK
-    if version != VERSION_1:
+    if version != CURRENT_VERSION:
         raise TProtocolException(
             type=TProtocolException.BAD_VERSION,
             message='Bad version in read_message_begin: %d' % (sz))
@@ -166,7 +166,7 @@ def read_message_begin(inbuf):
     name = inbuf.read(name_sz).decode('utf-8')
 
     seqid = unpack_i32(inbuf.read(4))
-    return name, type_, seqid
+    return name, type_, seqid, version
 
 
 def read_field_begin(inbuf):
@@ -334,8 +334,8 @@ class TBinaryProtocol(object):
         self.trans = trans
 
     def read_message_begin(self):
-        api, ttype, seqid = read_message_begin(self.trans)
-        return api, ttype, seqid
+        api, ttype, seqid, version = read_message_begin(self.trans)
+        return api, ttype, seqid, version
 
     def read_message_end(self):
         pass
