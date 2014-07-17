@@ -6,11 +6,6 @@ class ProtocolError(Exception):
 
 
 cdef class TCyBinaryProtocol(object):
-    DEF DEFAULT_BUFFER = 4096
-    DEF VERSION_MASK = -65536
-    DEF VERSION_1 = -2147418112
-    DEF TYPE_MASK = 0x000000ff
-    DEF FIELD_STOP = 0
 
     cdef BinaryRW buf
     cdef public object trans
@@ -29,7 +24,7 @@ cdef class TCyBinaryProtocol(object):
 
         name = self.buf.read_string()
         self.buf.read_int32(&seq_id)
-        return name, msg_type, seq_id
+        return name, msg_type, seq_id, version
 
     def read_message_end(self):
         pass
