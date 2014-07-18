@@ -169,6 +169,7 @@ class TProcessor(object):
 
     def process(self, iprot, oprot):
         api, type, seqid, version, meta = iprot.read_message_begin()
+        oprot.target_version = version
         if api not in self._service.thrift_services:
             iprot.skip(TType.STRUCT)
             iprot.read_message_end()
